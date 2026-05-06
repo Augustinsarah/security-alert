@@ -5,22 +5,77 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// 🎧 audio elements
-const monitorSound = document.getElementById("monitorSound");
-const heartSound = document.getElementById("heartSound");
+// 🎧 AUDIO ENGINE (guaranteed working)
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+// 🔊 hospital "tum tum" beep
+let monitorInterval;
+
+function startMonitorSound() {
+  monitorInterval = setInterval(() => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.frequency.value = 800; // beep tone
+    gain.gain.value = 0.2;
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+  }, 800); // tum…tum…
+}
+
+function stopMonitorSound() {
+  clearInterval(monitorInterval);
+}
+
+// ❤️ HEARTBEAT SOUND (REALISTIC DOUBLE BEAT)
+function playHeartbeat(duration = 5000) {
+
+  let start = audioCtx.currentTime;
+
+  function beat(time) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.frequency.value = 150;
+    gain.gain.setValueAtTime(0.6, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start(time);
+    osc.stop(time + 0.2);
+  }
+
+  let interval = setInterval(() => {
+    let now = audioCtx.currentTime;
+
+    beat(now);
+    beat(now + 0.2); // lub-dub
+
+  }, 1000);
+
+  setTimeout(() => {
+    clearInterval(interval);
+  }, duration);
+}
 
 // ================= START =================
 confirmBtn.onclick = () => {
 
+  audioCtx.resume(); // 🔥 unlock audio
+
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
 
-  // 🔊 START CONTINUOUS TUM-TUM
-  monitorSound.loop = true;
-  monitorSound.currentTime = 0;
-  monitorSound.play();
+  // 🔊 start monitor sound
+  startMonitorSound();
 
-  // 🔴 FIRST ALERT
+  // 🔴 alert
   monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.fontSize = "60px";
@@ -78,17 +133,15 @@ function alertPhase() {
   setTimeout(() => {
 
     // 🔇 stop monitor sound
-    monitorSound.pause();
+    stopMonitorSound();
 
-    // ❤️ start heartbeat
-    heartSound.currentTime = 0;
-    heartSound.play();
-
+    // ❤️ PLAY HEARTBEAT (GUARANTEED)
     monitor.style.background = "black";
     code.innerText = "";
 
+    playHeartbeat(5000);
+
     setTimeout(() => {
-      heartSound.pause();
       hackedScreen();
     }, 5000);
 
@@ -127,7 +180,7 @@ function finalLove() {
       align-items:center;
       background: radial-gradient(circle, #ffb6c1, #000);
     ">
-      <div style="font-size:90px; color:white; text-align:center;">
+      <div style="font-size:90px; color:white;">
         𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
     </div>
