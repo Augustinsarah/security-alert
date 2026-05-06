@@ -8,26 +8,26 @@ window.addEventListener("DOMContentLoaded", () => {
   const declineBtn = document.getElementById("decline");
 
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  let osc;
-  let gain;
+
+  let alarmOsc;
+  let alarmGain;
   let blink;
 
-  // ===== CLICK CONFIRM (FIXED 100%) =====
-  confirmBtn.addEventListener("click", () => {
-
-    audioCtx.resume();
+  // ===== CONFIRM =====
+  confirmBtn.addEventListener("click", async () => {
+    await audioCtx.resume();
 
     bootScreen.style.display = "none";
     monitor.style.display = "flex";
 
     code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
     code.style.color = "red";
-    code.style.fontSize = "50px";
     code.style.textAlign = "center";
+    code.style.fontSize = "50px";
 
     startAlarm();
 
-    setTimeout(scanPhase, 3000);
+    setTimeout(showHack, 5000);
   });
 
   // ===== DECLINE =====
@@ -35,89 +35,52 @@ window.addEventListener("DOMContentLoaded", () => {
     bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
   });
 
-  // ===== 🚨 ORIGINAL LONG SECURITY SIREN =====
+  // ===== 🚨 REAL CONTINUOUS SECURITY ALARM =====
   function startAlarm() {
 
     stopAll();
 
+    // RED FLASH
     let on = false;
     blink = setInterval(() => {
       monitor.style.background = on ? "#400000" : "#000000";
       monitor.style.boxShadow = on ? "0 0 120px red" : "none";
       on = !on;
-    }, 300);
+    }, 250);
 
-    osc = audioCtx.createOscillator();
-    gain = audioCtx.createGain();
+    // 🔊 CONTINUOUS WARNING SIREN (REAL SECURITY STYLE)
+    alarmOsc = audioCtx.createOscillator();
+    alarmGain = audioCtx.createGain();
 
-    osc.type = "sawtooth";
-    gain.gain.value = 0.25;
+    alarmOsc.type = "square"; // harsh system alarm
+    alarmGain.gain.value = 0.2;
 
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    alarmOsc.connect(alarmGain);
+    alarmGain.connect(audioCtx.destination);
 
-    osc.start();
+    alarmOsc.start();
 
+    // smooth repeating rise/fall (NOT ambulance, NOT beeps)
     let up = true;
-
     setInterval(() => {
       const t = audioCtx.currentTime;
 
-      if (up) {
-        osc.frequency.setValueAtTime(600, t);
-        osc.frequency.linearRampToValueAtTime(1200, t + 1.5);
-      } else {
-        osc.frequency.setValueAtTime(1200, t);
-        osc.frequency.linearRampToValueAtTime(600, t + 1.5);
-      }
+      const f1 = up ? 700 : 1100;
+      alarmOsc.frequency.setValueAtTime(f1, t);
+      alarmOsc.frequency.linearRampToValueAtTime(up ? 1100 : 700, t + 1.2);
 
       up = !up;
-    }, 1500);
+
+    }, 1200);
   }
 
-  // ===== SCAN =====
-  function scanPhase() {
+  // ===== HACKED SCREEN =====
+  function showHack() {
 
-    const lines = [
-      "> boot_sequence.init()",
-      "> scanning system...",
-      "> firewall check...",
-      "> intrusion detected..."
-    ];
-
-    let i = 0;
-    code.innerText = "";
-
-    function type() {
-      if (i < lines.length) {
-        code.innerText += lines[i] + "\n";
-        i++;
-        setTimeout(type, 800);
-      } else {
-        alertPhase();
-      }
-    }
-
-    type();
-  }
-
-  // ===== ALERT =====
-  function alertPhase() {
-    code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
-    code.style.color = "red";
-    code.style.fontSize = "40px";
-
-    setTimeout(() => {
-      stopAll();
-      setTimeout(hackedScreen, 5000);
-    }, 2500);
-  }
-
-  // ===== HACKED =====
-  function hackedScreen() {
+    stopAll();
 
     monitor.innerHTML = `
-      <div style="color:white; text-align:center; font-size:60px;">
+      <div style="color:white;text-align:center;font-size:60px;">
         𝕊𝔸ℝ𝔸ℍ ℍ𝔸ℂ𝕂𝔼𝔻 𝕐𝕆𝕌 😏<br><br>
         22 OCT 2024<br><br>
         No escape 💘
@@ -145,9 +108,8 @@ window.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  // ===== STOP =====
   function stopAll() {
-    if (osc) osc.stop();
+    if (alarmOsc) alarmOsc.stop();
     if (blink) clearInterval(blink);
   }
 
