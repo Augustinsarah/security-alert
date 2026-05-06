@@ -9,27 +9,12 @@ const code = document.getElementById("code");
 // ====== AUDIO ENGINE ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// ====== STATE TRACKING ======
+// ====== 🔴 DANGER MODE (SIREN + BLINK) ======
 let sirenOsc = null;
 let sirenGain = null;
 let blinkInterval = null;
 let sweepInterval = null;
-let monitorInterval = null;
-let emojiInterval = null;
 
-// ====== STOP EVERYTHING ======
-function stopAllSounds() {
-  if (sirenOsc) {
-    try { sirenOsc.stop(); } catch {}
-    sirenOsc = null;
-  }
-
-  clearInterval(blinkInterval);
-  clearInterval(monitorInterval);
-  clearInterval(sweepInterval);
-}
-
-// ====== 🔴 DANGER MODE ======
 function startDangerMode() {
   stopAllSounds();
 
@@ -44,12 +29,12 @@ function startDangerMode() {
 
   sirenOsc.start();
 
-  const sweep = () => {
+  function sweep() {
     const now = audioCtx.currentTime;
     sirenOsc.frequency.setValueAtTime(500, now);
     sirenOsc.frequency.linearRampToValueAtTime(1200, now + 0.8);
     sirenOsc.frequency.linearRampToValueAtTime(500, now + 1.6);
-  };
+  }
 
   sweep();
   sweepInterval = setInterval(sweep, 1600);
@@ -63,6 +48,8 @@ function startDangerMode() {
 }
 
 // ====== 💻 MONITOR SOUND ======
+let monitorInterval = null;
+
 function startMonitorSound() {
   stopAllSounds();
 
@@ -80,9 +67,23 @@ function startMonitorSound() {
     osc.start();
     osc.stop(audioCtx.currentTime + 0.1);
   }, 900);
+
+  monitor.style.background = "black";
 }
 
-// ====== ❤️ HEARTBEAT ======
+// ====== ❤️ REAL HEARTBEAT ======
+function playHeartbeat(duration = 9000) {
+  let interval = setInterval(() => {
+    let now = audioCtx.currentTime;
+
+    heartbeatBeat(now, 60, 1.0);
+    heartbeatBeat(now + 0.28, 48, 0.7);
+
+  }, 1100);
+
+  setTimeout(() => clearInterval(interval), duration);
+}
+
 function heartbeatBeat(time, freq, volume) {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
@@ -100,19 +101,21 @@ function heartbeatBeat(time, freq, volume) {
   osc.stop(time + 0.4);
 }
 
-function playHeartbeat(duration = 9000) {
-  const interval = setInterval(() => {
-    const now = audioCtx.currentTime;
-    heartbeatBeat(now, 60, 1.0);
-    heartbeatBeat(now + 0.28, 48, 0.7);
-  }, 1100);
-
-  setTimeout(() => clearInterval(interval), duration);
+// ====== STOP ALL ======
+function stopAllSounds() {
+  if (sirenOsc) {
+    sirenOsc.stop();
+    sirenOsc = null;
+  }
+  if (blinkInterval) clearInterval(blinkInterval);
+  if (monitorInterval) clearInterval(monitorInterval);
+  if (sweepInterval) clearInterval(sweepInterval);
 }
 
 // ====== START ======
-confirmBtn.onclick = async () => {
-  await audioCtx.resume();
+confirmBtn.onclick = () => {
+
+  audioCtx.resume();
 
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
@@ -129,6 +132,7 @@ confirmBtn.onclick = async () => {
 
 // ====== CODE PHASE ======
 function codePhase() {
+
   code.style.color = "#00ff66";
   code.style.fontSize = "26px";
   code.style.textAlign = "left";
@@ -152,7 +156,7 @@ function codePhase() {
     if (i < lines.length) {
       code.innerText += lines[i] + "\n";
       i++;
-      setTimeout(typeLine, 900);
+      setTimeout(typeLine, 1000);
     } else {
       alertPhase();
     }
@@ -163,7 +167,6 @@ function codePhase() {
 
 // ====== ALERT ======
 function alertPhase() {
-  stopAllSounds();
 
   code.style.color = "#ff4d4d";
   code.style.textAlign = "center";
@@ -173,18 +176,24 @@ function alertPhase() {
   startDangerMode();
 
   setTimeout(() => {
+
     stopAllSounds();
+
     monitor.style.background = "black";
     code.innerText = "";
 
     playHeartbeat(9000);
 
-    setTimeout(hackedScreen, 9000);
+    setTimeout(() => {
+      hackedScreen();
+    }, 9000);
+
   }, 4000);
 }
 
 // ====== HACKED ======
 function hackedScreen() {
+
   code.style.color = "white";
   code.style.textAlign = "center";
   code.style.fontSize = "70px";
@@ -205,43 +214,56 @@ function hackedScreen() {
   setTimeout(finalLove, 6000);
 }
 
-// ====== LOVE SCREEN ======
+// ====== LOVE (FINAL WITH EMOJIS) ======
 function finalLove() {
+
   document.body.innerHTML = `
-    <div style="
+    <div id="loveScreen" style="
       height:100vh;
       display:flex;
       justify-content:center;
       align-items:center;
       background: radial-gradient(circle, #ffb6c1, #000);
+      overflow:hidden;
+      position:relative;
       text-align:center;
-      color:white;
-      font-size:80px;
     ">
-      I LOVE YOU AUGGY 💖
+      <div style="font-size:100px; color:white; z-index:2;">
+        𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
+      </div>
     </div>
   `;
 
-  const emojis = ["❤️","💕","😍","🥰","🫶","💍","💞"];
+  const emojis = [
+    "❤️","💕","😍","😘","🫂","🥰","🥹","🤗","🫣","🤭","🫠","🫶",
+    "🫀","🤴👸","👩🏻‍❤️‍💋‍👨🏾","👩🏻‍❤️‍👨🏾","👑","💍","💎","💝","💞"
+  ];
 
-  emojiInterval = setInterval(() => {
-    const e = document.createElement("div");
-    e.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+  setInterval(() => {
 
-    e.style.position = "absolute";
-    e.style.left = Math.random() * window.innerWidth + "px";
-    e.style.top = window.innerHeight + "px";
-    e.style.fontSize = (20 + Math.random() * 40) + "px";
-    e.style.transition = "all 4s linear";
+    const emoji = document.createElement("div");
 
-    document.body.appendChild(e);
+    emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+    emoji.style.position = "absolute";
+    emoji.style.left = Math.random() * window.innerWidth + "px";
+    emoji.style.top = window.innerHeight + "px";
+
+    emoji.style.fontSize = (20 + Math.random() * 40) + "px";
+    emoji.style.opacity = 1;
+    emoji.style.transition = "all 4s linear";
+
+    document.body.appendChild(emoji);
 
     setTimeout(() => {
-      e.style.top = "-50px";
-      e.style.opacity = 0;
+      emoji.style.top = "-50px";
+      emoji.style.opacity = 0;
     }, 50);
 
-    setTimeout(() => e.remove(), 4000);
+    setTimeout(() => {
+      emoji.remove();
+    }, 4000);
+
   }, 300);
 }
 
