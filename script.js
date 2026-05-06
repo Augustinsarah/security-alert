@@ -3,26 +3,29 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// ====== AUDIO ======
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx;
+let siren;
 
-// ====== BUTTON SETUP (FIXED STABILITY) ======
+// ====== INIT (IMPORTANT SAFETY FIX) ======
 window.addEventListener("DOMContentLoaded", () => {
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
   const confirmBtn = document.getElementById("confirm");
   const declineBtn = document.getElementById("decline");
 
   if (confirmBtn) {
-    confirmBtn.onclick = () => startSystem();
+    confirmBtn.addEventListener("click", startSystem);
   }
 
   if (declineBtn) {
-    declineBtn.onclick = () => {
-      if (bootScreen) bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
-    };
+    declineBtn.addEventListener("click", () => {
+      bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
+    });
   }
 });
 
-// ====== START SYSTEM ======
+// ====== START ======
 function startSystem() {
 
   audioCtx.resume();
@@ -35,16 +38,13 @@ function startSystem() {
   code.style.textAlign = "center";
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
 
-  startDangerMode();
+  startDanger();
 
   setTimeout(codePhase, 3000);
 }
 
-// ====== DANGER MODE ======
-let siren;
-let blink;
-
-function startDangerMode() {
+// ====== DANGER SOUND ======
+function startDanger() {
 
   stopAll();
 
@@ -52,7 +52,7 @@ function startDangerMode() {
   const gain = audioCtx.createGain();
 
   siren.type = "sawtooth";
-  siren.frequency.value = 700;
+  siren.frequency.value = 800;
   gain.gain.value = 0.3;
 
   siren.connect(gain);
@@ -121,14 +121,14 @@ function alertPhase() {
 function playHeartbeat(duration) {
 
   let interval = setInterval(() => {
-    pulse(60, 1);
-    pulse(45, 0.7);
+    beat(60, 1);
+    beat(45, 0.7);
   }, 1000);
 
   setTimeout(() => clearInterval(interval), duration);
 }
 
-function pulse(freq, vol) {
+function beat(freq, vol) {
   const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
@@ -204,7 +204,7 @@ function finalLove() {
   }, 250);
 }
 
-// ====== STOP ALL ======
+// ====== STOP ======
 function stopAll() {
   if (siren) siren.stop();
 }
