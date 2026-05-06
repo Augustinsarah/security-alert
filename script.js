@@ -5,34 +5,22 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// 🔊 continuous monitor sound (tum…tum…tum…)
-const monitorSound = new Audio("https://actions.google.com/sounds/v1/alarms/medical_monitor_beep.ogg");
-monitorSound.loop = true;
+// 🎧 audio elements
+const monitorSound = document.getElementById("monitorSound");
+const heartSound = document.getElementById("heartSound");
 
-// ❤️ heartbeat (strong one)
-const heartSound = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
-
-// unlock audio
-function unlock() {
-  monitorSound.volume = 0;
-  monitorSound.play().then(() => {
-    monitorSound.pause();
-    monitorSound.currentTime = 0;
-    monitorSound.volume = 1;
-  }).catch(()=>{});
-}
-
+// ================= START =================
 confirmBtn.onclick = () => {
-
-  unlock();
 
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
 
-  // ▶ START CONTINUOUS SOUND
+  // 🔊 START CONTINUOUS TUM-TUM
+  monitorSound.loop = true;
+  monitorSound.currentTime = 0;
   monitorSound.play();
 
-  // 🔴 first alert
+  // 🔴 FIRST ALERT
   monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.fontSize = "60px";
@@ -43,7 +31,7 @@ confirmBtn.onclick = () => {
   setTimeout(codePhase, 2500);
 };
 
-// 💻 CODE PHASE
+// ================= CODE =================
 function codePhase() {
 
   monitor.style.background = "black";
@@ -77,7 +65,7 @@ function codePhase() {
   typeLine();
 }
 
-// 🔴 ALERT → ❤️ HEARTBEAT
+// ================= ALERT =================
 function alertPhase() {
 
   monitor.style.background = "#300000";
@@ -89,15 +77,15 @@ function alertPhase() {
 
   setTimeout(() => {
 
-    // stop monitor beep
+    // 🔇 stop monitor sound
     monitorSound.pause();
 
-    // black screen
+    // ❤️ start heartbeat
+    heartSound.currentTime = 0;
+    heartSound.play();
+
     monitor.style.background = "black";
     code.innerText = "";
-
-    // ❤️ start heartbeat clearly
-    heartSound.play();
 
     setTimeout(() => {
       heartSound.pause();
@@ -107,7 +95,7 @@ function alertPhase() {
   }, 2000);
 }
 
-// 😏 hacked
+// ================= HACKED =================
 function hackedScreen() {
 
   code.style.color = "white";
@@ -128,7 +116,7 @@ function hackedScreen() {
   setTimeout(finalLove, 3500);
 }
 
-// 💘 final
+// ================= LOVE =================
 function finalLove() {
 
   document.body.innerHTML = `
@@ -146,7 +134,7 @@ function finalLove() {
   `;
 }
 
-// decline
+// ================= DECLINE =================
 declineBtn.onclick = () => {
   bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
 };
