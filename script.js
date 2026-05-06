@@ -5,7 +5,8 @@ const code = document.getElementById("code");
 
 // ====== AUDIO ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let osc;
+let oscLow;
+let oscHigh;
 let gain;
 let blink;
 
@@ -35,52 +36,68 @@ function startSystem() {
   code.style.fontSize = "50px";
   code.style.textAlign = "center";
 
-  startAlarm();
+  startIntrusionAlarm();
 
   setTimeout(scanPhase, 3000);
 }
 
-// ====== 🔴 LONG CONTINUOUS BANK ALARM ======
-function startAlarm() {
+// ====== 🚨 LASER TRAP SECURITY ALARM (REALISTIC BREACH SOUND) ======
+function startIntrusionAlarm() {
 
   stopAll();
 
-  // FLASH RED SCREEN
+  // 🔴 RED FLASH
   let on = false;
   blink = setInterval(() => {
-    monitor.style.background = on ? "#400000" : "#000000";
-    monitor.style.boxShadow = on ? "0 0 120px red" : "none";
+    monitor.style.background = on ? "#3a0000" : "#000000";
+    monitor.style.boxShadow = on ? "0 0 100px red" : "none";
     on = !on;
-  }, 300);
+  }, 250);
 
-  // CONTINUOUS SIREN (SMOOTH WAIL)
-  osc = audioCtx.createOscillator();
-  gain = audioCtx.createGain();
+  // 🔊 LOW WARNING OSCILLATOR
+  oscLow = audioCtx.createOscillator();
+  const gainLow = audioCtx.createGain();
 
-  osc.type = "sine"; // smoother than square/saw for long alarm feel
-  gain.gain.value = 0.25;
+  oscLow.type = "sine";
+  oscLow.frequency.value = 420;
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  gainLow.gain.value = 0.2;
 
-  osc.start();
+  oscLow.connect(gainLow);
+  gainLow.connect(audioCtx.destination);
 
-  // LONG SLOW SWEEP (REAL ALARM FEEL)
-  let direction = 1;
-  let freq = 500;
+  oscLow.start();
+
+  // 🔊 HIGH WARNING OSCILLATOR
+  oscHigh = audioCtx.createOscillator();
+  const gainHigh = audioCtx.createGain();
+
+  oscHigh.type = "sine";
+  oscHigh.frequency.value = 900;
+
+  gainHigh.gain.value = 0.15;
+
+  oscHigh.connect(gainHigh);
+  gainHigh.connect(audioCtx.destination);
+
+  oscHigh.start();
+
+  // 🚨 SLOW “BREACH SWEEP” (REAL SECURITY FEEL)
+  let up = true;
 
   setInterval(() => {
 
     const t = audioCtx.currentTime;
 
-    freq += direction * 20;
+    let lowFreq = up ? 380 : 520;
+    let highFreq = up ? 850 : 1050;
 
-    if (freq > 1200) direction = -1;
-    if (freq < 500) direction = 1;
+    oscLow.frequency.setValueAtTime(lowFreq, t);
+    oscHigh.frequency.setValueAtTime(highFreq, t);
 
-    osc.frequency.setValueAtTime(freq, t);
+    up = !up;
 
-  }, 50);
+  }, 700);
 }
 
 // ====== SCAN PHASE ======
@@ -90,10 +107,10 @@ function scanPhase() {
 
   const lines = [
     "> boot_sequence.init()",
-    "> loading security kernel...",
-    "> scanning memory...",
-    "> verifying access logs...",
-    "> firewall breach detected..."
+    "> scanning restricted zone...",
+    "> laser grid detected...",
+    "> bypass attempt detected...",
+    "> security breach escalating..."
   ];
 
   let i = 0;
@@ -226,6 +243,7 @@ function finalLove() {
 
 // ====== STOP ======
 function stopAll() {
-  if (osc) osc.stop();
+  if (oscLow) oscLow.stop();
+  if (oscHigh) oscHigh.stop();
   if (blink) clearInterval(blink);
 }
