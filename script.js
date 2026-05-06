@@ -5,18 +5,13 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// 🔊 alert sound (tun-tun)
-function alertBeep() {
-  const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-  beep.play();
-}
-
-// ❤️ heartbeat
-function heartbeatSound() {
-  const hb = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
-  hb.play();
-  return hb;
-}
+// sounds
+const beep = () => new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
+const heartbeat = () => {
+  const h = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
+  h.play();
+  return h;
+};
 
 // unlock audio
 function unlock() {
@@ -27,50 +22,48 @@ function unlock() {
 confirmBtn.onclick = () => {
   unlock();
 
-  // 🔴 red alert screen
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
-  monitor.style.background = "#2b0000";
 
+  // 🔴 FIRST ALERT
+  monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.fontSize = "60px";
   code.style.textAlign = "center";
-
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
 
-  alertBeep();
+  beep();
 
-  setTimeout(runCodePhase, 2500);
+  setTimeout(codePhase, 2500);
 };
 
-// 💻 REAL CODE STYLE TEXT
-function runCodePhase() {
+// 💻 CODE PHASE (REAL TYPING)
+function codePhase() {
 
   monitor.style.background = "black";
   code.style.color = "#00ff66";
   code.style.fontSize = "28px";
   code.style.textAlign = "left";
-  code.style.padding = "40px";
+  code.style.padding = "30px";
 
   const lines = [
-    "> init.sys --run",
-    "> loading kernel modules...",
+    "> boot_sequence.init()",
+    "> loading kernel...",
     "> checking files...",
-    "> scanning memory blocks...",
-    "> verifying access layers...",
-    "> system integrity: FAIL"
+    "> scanning memory...",
+    "> injecting trace...",
+    "> access violation detected"
   ];
 
   let i = 0;
 
   function typeLine() {
-    code.innerText += lines[i] + "\n";
-    i++;
-
     if (i < lines.length) {
+      code.innerText += lines[i] + "\n";
+      i++;
       setTimeout(typeLine, 600);
     } else {
-      triggerAlert();
+      secondAlert();
     }
   }
 
@@ -78,10 +71,10 @@ function runCodePhase() {
   typeLine();
 }
 
-// 🔴 second alert
-function triggerAlert() {
+// 🔴 SECOND ALERT
+function secondAlert() {
 
-  monitor.style.background = "#2b0000";
+  monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.textAlign = "center";
   code.style.fontSize = "55px";
@@ -89,48 +82,50 @@ function triggerAlert() {
 
   code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
 
-  alertBeep();
+  beep();
 
   setTimeout(heartbeatPhase, 2500);
 }
 
-// ❤️ heartbeat phase
+// ❤️ HEARTBEAT
 function heartbeatPhase() {
 
   monitor.style.background = "black";
   code.innerText = "";
 
-  const hb = heartbeatSound();
+  const h = heartbeat();
 
   setTimeout(() => {
-    hb.pause();
-    hackedScreen();
+    h.pause();
+    hackedMessage();
   }, 5000);
 }
 
-// 😏 hacked message (math bold style)
-function hackedScreen() {
+// 😏 HACKED MESSAGE
+function hackedMessage() {
 
   code.style.color = "white";
   code.style.textAlign = "center";
   code.style.fontSize = "70px";
 
   code.innerHTML = `
-    <div style="font-family: 'Courier New', monospace;">
-      <b>𝑺𝑨𝑹𝑨𝑯 𝑯𝑨𝑪𝑲𝑬𝑫 𝒀𝑶𝑼 😏</b>
-      <br><br>
-      <span style="font-size:40px;">
+    <div style="line-height:1.5;">
+      <div style="font-size:75px;">
+        𝕊𝔸ℝ𝔸ℍ ℍ𝔸ℂ𝕂𝔼𝔻 𝕐𝕆𝕌 😏
+      </div>
+      <br>
+      <div style="font-size:35px;">
         22 OCT 2024<br><br>
         No escape available 💘
-      </span>
+      </div>
     </div>
   `;
 
-  setTimeout(loveScreen, 3500);
+  setTimeout(finalLove, 3500);
 }
 
-// 💘 final love screen (cute background)
-function loveScreen() {
+// 💘 FINAL LOVE
+function finalLove() {
 
   document.body.innerHTML = `
     <div style="
@@ -138,16 +133,14 @@ function loveScreen() {
       display:flex;
       justify-content:center;
       align-items:center;
-      flex-direction:column;
       background: radial-gradient(circle, #ffb6c1, #000);
       text-align:center;
     ">
       <div style="
         font-size:90px;
         color:white;
-        font-family: 'Courier New', monospace;
       ">
-        𝑰 𝑳𝑶𝑽𝑬 𝒀𝑶𝑼 𝑨𝑼𝑮𝑮𝒀 💖
+        𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
     </div>
   `;
