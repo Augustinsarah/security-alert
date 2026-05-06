@@ -5,11 +5,25 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// 🔓 unlock audio (fixes silent issue)
+// 🔓 unlock audio (fix Chrome block)
 function unlockAudio() {
-  const silent = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-  silent.volume = 0;
-  silent.play().catch(() => {});
+  const a = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+  a.volume = 0;
+  a.play().catch(() => {});
+}
+
+// ⚡ SCREEN FLASH + SHAKE
+function flashShake() {
+  document.body.style.transition = "0.1s";
+  document.body.style.background = "white";
+
+  setTimeout(() => {
+    document.body.style.background = "black";
+  }, 150);
+
+  document.body.style.transform = "translateX(10px)";
+  setTimeout(() => document.body.style.transform = "translateX(-10px)", 100);
+  setTimeout(() => document.body.style.transform = "translateX(0px)", 200);
 }
 
 confirmBtn.onclick = () => {
@@ -19,33 +33,47 @@ confirmBtn.onclick = () => {
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
 
-  startHack();
+  startSequence();
 };
 
-function startHack() {
+function startSequence() {
 
   const messages = [
-    "SECURITY ALERT CODE: 001-X7",
-    "BREACH DETECTED",
-    "SYSTEM OVERRIDE ACTIVE",
-    "MONITORING UNSTABLE",
-    "TRACE RUNNING..."
+    "SYSTEM SCAN INITIATED...",
+    "FIREWALL BYPASSED...",
+    "DEVICE TRACE ACTIVE...",
+    "LOCATION UNKNOWN...",
+    "BREACH IMMINENT..."
   ];
 
   let i = 0;
 
-  function show() {
+  function runScan() {
     code.innerText = messages[i];
+    flashShake();
     i++;
 
     if (i < messages.length) {
-      setTimeout(show, 1500);
+      setTimeout(runScan, 1200);
     } else {
-      heartbeat();
+      breachAlert();
     }
   }
 
-  function heartbeat() {
+  function breachAlert() {
+
+    monitor.style.background = "#200000";
+    code.innerHTML = "🚨 SECURITY BREACH DETECTED 🚨";
+
+    const alarm = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+    alarm.play();
+
+    setTimeout(() => {
+      heartbeatPhase();
+    }, 3000);
+  }
+
+  function heartbeatPhase() {
 
     monitor.style.background = "black";
     code.innerText = "";
@@ -55,85 +83,87 @@ function startHack() {
 
     setTimeout(() => {
       hb.pause();
-      smoke();
+      smokePhase();
     }, 5000);
   }
 
-  function smoke() {
+  function smokePhase() {
 
-    const sm = new Audio("https://actions.google.com/sounds/v1/nature/wind_and_rain.ogg");
-    sm.play();
+    const smoke = new Audio("https://actions.google.com/sounds/v1/nature/wind_and_rain.ogg");
+    smoke.play();
 
     setTimeout(() => {
-      finalScreen();
+      finalScene();
     }, 3000);
   }
 
-  function finalScreen() {
+  function finalScene() {
 
     monitor.innerHTML = `
       <div style="
         color: black;
         font-size: 55px;
         text-align: center;
-        background: white;
+        background: rgba(255,255,255,0.95);
         padding: 40px;
         border-radius: 20px;
+        animation: fadeIn 2s ease;
       ">
-        💖 SECURITY RESET COMPLETE 💖<br><br>
-        SYSTEM STABLE<br><br>
-        TRACE TERMINATED
+        💖 SYSTEM RESTORED 💖<br><br>
+        ALL THREATS NEUTRALIZED
       </div>
     `;
 
-    setTimeout(() => {
-      document.body.innerHTML = `
-        <div style="
-          height: 100vh;
-          display:flex;
-          justify-content:center;
-          align-items:center;
-          background:black;
-        ">
-          <div style="
-            font-size: 90px;
-            color: #ffb6c1;
-            text-align:center;
-          ">
-            I LOVE YOU AUGGY 👩🏻‍❤️‍💋‍👨🏾
-          </div>
-        </div>
-      `;
-    }, 3000);
+    setTimeout(loveScreen, 3000);
   }
 
-  show();
-}
+  function loveScreen() {
 
-function show() {
-  const messages = [
-    "SECURITY ALERT CODE: 001-X7",
-    "BREACH DETECTED",
-    "SYSTEM OVERRIDE ACTIVE",
-    "MONITORING UNSTABLE",
-    "TRACE RUNNING..."
-  ];
+    document.body.innerHTML = `
+      <div id="love">
+        I LOVE YOU AUGGY 👩🏻‍❤️‍💋‍👨🏾
+      </div>
+    `;
 
-  let i = 0;
+    // 💖 floating hearts
+    setInterval(() => {
+      const heart = document.createElement("div");
+      heart.innerHTML = "💖";
+      heart.style.position = "absolute";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.top = "100vh";
+      heart.style.fontSize = "30px";
+      heart.style.animation = "floatUp 4s linear";
+      document.body.appendChild(heart);
 
-  function run() {
-    code.innerText = messages[i];
-    i++;
-    if (i < messages.length) {
-      setTimeout(run, 1500);
-    } else {
-      heartbeat();
-    }
+      setTimeout(() => heart.remove(), 4000);
+    }, 300);
   }
 
-  run();
+  runScan();
 }
 
 declineBtn.onclick = () => {
   bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
 };
+
+// 💖 animations injected
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes floatUp {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-100vh); opacity: 0; }
+}
+
+#love {
+  height: 100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:black;
+  color:#ffb6c1;
+  font-size:80px;
+  text-align:center;
+}
+`;
+document.head.appendChild(style);
