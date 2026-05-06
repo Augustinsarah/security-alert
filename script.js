@@ -5,9 +5,7 @@ const code = document.getElementById("code");
 
 // ====== AUDIO ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let oscLow;
-let oscHigh;
-let gain;
+let alarmOsc;
 let blink;
 
 // ====== INIT ======
@@ -32,85 +30,61 @@ function startSystem() {
   monitor.style.display = "flex";
 
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
-  code.style.color = "#ff0000";
+  code.style.color = "red";
   code.style.fontSize = "50px";
   code.style.textAlign = "center";
 
-  startIntrusionAlarm();
+  startAlarm();
 
   setTimeout(scanPhase, 3000);
 }
 
-// ====== 🚨 LASER TRAP SECURITY ALARM (REALISTIC BREACH SOUND) ======
-function startIntrusionAlarm() {
+// ====== 🚨 REAL SECURITY BREACH ALARM (CORRECT SOUND) ======
+function startAlarm() {
 
   stopAll();
 
-  // 🔴 RED FLASH
+  // 🔴 FLASHING RED SCREEN
   let on = false;
   blink = setInterval(() => {
-    monitor.style.background = on ? "#3a0000" : "#000000";
-    monitor.style.boxShadow = on ? "0 0 100px red" : "none";
+    monitor.style.background = on ? "#400000" : "#000000";
+    monitor.style.boxShadow = on ? "0 0 120px red" : "none";
     on = !on;
-  }, 250);
+  }, 200);
 
-  // 🔊 LOW WARNING OSCILLATOR
-  oscLow = audioCtx.createOscillator();
-  const gainLow = audioCtx.createGain();
+  // 🚨 SINGLE HARSH ALARM TONE (NOT AMBULANCE STYLE)
+  alarmOsc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
 
-  oscLow.type = "sine";
-  oscLow.frequency.value = 420;
+  alarmOsc.type = "square"; // harsh = security alarm feel
+  alarmOsc.frequency.value = 1000; // fixed piercing warning tone
 
-  gainLow.gain.value = 0.2;
+  gain.gain.value = 0.25;
 
-  oscLow.connect(gainLow);
-  gainLow.connect(audioCtx.destination);
+  alarmOsc.connect(gain);
+  gain.connect(audioCtx.destination);
 
-  oscLow.start();
+  alarmOsc.start();
 
-  // 🔊 HIGH WARNING OSCILLATOR
-  oscHigh = audioCtx.createOscillator();
-  const gainHigh = audioCtx.createGain();
-
-  oscHigh.type = "sine";
-  oscHigh.frequency.value = 900;
-
-  gainHigh.gain.value = 0.15;
-
-  oscHigh.connect(gainHigh);
-  gainHigh.connect(audioCtx.destination);
-
-  oscHigh.start();
-
-  // 🚨 SLOW “BREACH SWEEP” (REAL SECURITY FEEL)
-  let up = true;
-
+  // ⚠️ FAST PULSE (URGENT SYSTEM ALARM FEEL)
   setInterval(() => {
-
     const t = audioCtx.currentTime;
 
-    let lowFreq = up ? 380 : 520;
-    let highFreq = up ? 850 : 1050;
+    alarmOsc.frequency.setValueAtTime(1000, t);
+    alarmOsc.frequency.linearRampToValueAtTime(1300, t + 0.15);
+    alarmOsc.frequency.linearRampToValueAtTime(900, t + 0.3);
 
-    oscLow.frequency.setValueAtTime(lowFreq, t);
-    oscHigh.frequency.setValueAtTime(highFreq, t);
-
-    up = !up;
-
-  }, 700);
+  }, 300);
 }
 
-// ====== SCAN PHASE ======
+// ====== SCAN ======
 function scanPhase() {
-
-  document.body.style.background = "black";
 
   const lines = [
     "> boot_sequence.init()",
-    "> scanning restricted zone...",
-    "> laser grid detected...",
-    "> bypass attempt detected...",
-    "> security breach escalating..."
+    "> scanning system...",
+    "> firewall check...",
+    "> intrusion detected..."
   ];
 
   let i = 0;
@@ -133,67 +107,30 @@ function scanPhase() {
 function alertPhase() {
 
   code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
-  code.style.color = "#ff0000";
+  code.style.color = "red";
   code.style.fontSize = "40px";
 
   setTimeout(() => {
 
     stopAll();
 
-    playHeartbeat(8000);
-
-    setTimeout(hackedScreen, 8000);
+    setTimeout(hackedScreen, 6000);
 
   }, 2500);
 }
 
-// ====== HEARTBEAT ======
-function playHeartbeat(duration) {
-
-  let count = 0;
-
-  let interval = setInterval(() => {
-
-    beat(55, 1);
-    setTimeout(() => beat(40, 0.8), 180);
-
-    count++;
-    if (count > 10) clearInterval(interval);
-
-  }, 900);
-
-  setTimeout(() => clearInterval(interval), duration);
-}
-
-function beat(freq, vol) {
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-
-  o.type = "triangle";
-  o.frequency.value = freq;
-
-  g.gain.value = vol;
-  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
-
-  o.connect(g);
-  g.connect(audioCtx.destination);
-
-  o.start();
-  o.stop(audioCtx.currentTime + 0.35);
-}
-
-// ====== HACKED SCREEN ======
+// ====== HACKED ======
 function hackedScreen() {
 
   monitor.innerHTML = `
     <div style="color:white; text-align:center; font-size:60px;">
       𝕊𝔸ℝ𝔸ℍ ℍ𝔸ℂ𝕂𝔼𝔻 𝕐𝕆𝕌 😏<br><br>
       22 OCT 2024<br><br>
-      No escape available 💘
+      No escape 💘
     </div>
   `;
 
-  setTimeout(finalLove, 5000);
+  setTimeout(finalLove, 4000);
 }
 
 // ====== FINAL LOVE ======
@@ -209,41 +146,15 @@ function finalLove() {
       overflow:hidden;
       position:relative;
     ">
-      <div style="font-size:90px; color:white; z-index:2;">
+      <div style="font-size:90px; color:white;">
         𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
     </div>
   `;
-
-  const emojis = ["❤️","💕","😍","😘","🫶","🥰","💞","💝","👑","💍","💎","🫂"];
-
-  setInterval(() => {
-
-    const e = document.createElement("div");
-
-    e.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-
-    e.style.position = "absolute";
-    e.style.left = Math.random() * window.innerWidth + "px";
-    e.style.top = window.innerHeight + "px";
-    e.style.fontSize = (20 + Math.random() * 45) + "px";
-    e.style.transition = "all 4s linear";
-
-    document.body.appendChild(e);
-
-    setTimeout(() => {
-      e.style.top = "-100px";
-      e.style.opacity = "0";
-    }, 50);
-
-    setTimeout(() => e.remove(), 4000);
-
-  }, 200);
 }
 
 // ====== STOP ======
 function stopAll() {
-  if (oscLow) oscLow.stop();
-  if (oscHigh) oscHigh.stop();
+  if (alarmOsc) alarmOsc.stop();
   if (blink) clearInterval(blink);
 }
