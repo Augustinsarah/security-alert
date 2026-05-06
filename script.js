@@ -5,10 +5,24 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
+// 🔓 unlock audio (fixes silent issue)
+function unlockAudio() {
+  const silent = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+  silent.volume = 0;
+  silent.play().catch(() => {});
+}
+
 confirmBtn.onclick = () => {
+
+  unlockAudio();
 
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
+
+  startHack();
+};
+
+function startHack() {
 
   const messages = [
     "SECURITY ALERT CODE: 001-X7",
@@ -20,49 +34,49 @@ confirmBtn.onclick = () => {
 
   let i = 0;
 
-  function showCode() {
+  function show() {
     code.innerText = messages[i];
     i++;
 
     if (i < messages.length) {
-      setTimeout(showCode, 1500);
+      setTimeout(show, 1500);
     } else {
-      startHeartbeatPhase();
+      heartbeat();
     }
   }
 
-  function startHeartbeatPhase() {
+  function heartbeat() {
 
     monitor.style.background = "black";
     code.innerText = "";
 
-    const heartbeat = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
-    heartbeat.play();
+    const hb = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
+    hb.play();
 
     setTimeout(() => {
-      heartbeat.pause();
-      startSmokePhase();
+      hb.pause();
+      smoke();
     }, 5000);
   }
 
-  function startSmokePhase() {
+  function smoke() {
 
-    const smoke = new Audio("https://actions.google.com/sounds/v1/nature/wind_and_rain.ogg");
-    smoke.play();
+    const sm = new Audio("https://actions.google.com/sounds/v1/nature/wind_and_rain.ogg");
+    sm.play();
 
     setTimeout(() => {
-      showFinalMessage();
-    }, 4000);
+      finalScreen();
+    }, 3000);
   }
 
-  function showFinalMessage() {
+  function finalScreen() {
 
     monitor.innerHTML = `
       <div style="
         color: black;
-        font-size: 60px;
+        font-size: 55px;
         text-align: center;
-        background: rgba(255,255,255,0.95);
+        background: white;
         padding: 40px;
         border-radius: 20px;
       ">
@@ -73,29 +87,52 @@ confirmBtn.onclick = () => {
     `;
 
     setTimeout(() => {
-      showLoveScreen();
-    }, 4000);
+      document.body.innerHTML = `
+        <div style="
+          height: 100vh;
+          display:flex;
+          justify-content:center;
+          align-items:center;
+          background:black;
+        ">
+          <div style="
+            font-size: 90px;
+            color: #ffb6c1;
+            text-align:center;
+          ">
+            I LOVE YOU AUGGY 👩🏻‍❤️‍💋‍👨🏾
+          </div>
+        </div>
+      `;
+    }, 3000);
   }
 
-  function showLoveScreen() {
+  show();
+}
 
-    document.body.innerHTML = `
-      <div style="
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #ffb6c1;
-        font-size: 80px;
-        font-family: monospace;
-      ">
-        I LOVE YOU AUGGY 👩🏻‍❤️‍💋‍👨🏾
-      </div>
-    `;
+function show() {
+  const messages = [
+    "SECURITY ALERT CODE: 001-X7",
+    "BREACH DETECTED",
+    "SYSTEM OVERRIDE ACTIVE",
+    "MONITORING UNSTABLE",
+    "TRACE RUNNING..."
+  ];
+
+  let i = 0;
+
+  function run() {
+    code.innerText = messages[i];
+    i++;
+    if (i < messages.length) {
+      setTimeout(run, 1500);
+    } else {
+      heartbeat();
+    }
   }
 
-  showCode();
-};
+  run();
+}
 
 declineBtn.onclick = () => {
   bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
