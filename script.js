@@ -5,14 +5,6 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// sounds
-const beep = () => new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
-const heartbeat = () => {
-  const h = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
-  h.play();
-  return h;
-};
-
 // unlock audio
 function unlock() {
   const a = new Audio();
@@ -20,6 +12,7 @@ function unlock() {
 }
 
 confirmBtn.onclick = () => {
+
   unlock();
 
   bootScreen.style.display = "none";
@@ -30,21 +23,22 @@ confirmBtn.onclick = () => {
   code.style.color = "#ff4d4d";
   code.style.fontSize = "60px";
   code.style.textAlign = "center";
+
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
 
-  beep();
+  new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
 
   setTimeout(codePhase, 2500);
 };
 
-// 💻 CODE PHASE (REAL TYPING)
+// 💻 CODE PHASE
 function codePhase() {
 
   monitor.style.background = "black";
   code.style.color = "#00ff66";
-  code.style.fontSize = "28px";
+  code.style.fontSize = "26px";
   code.style.textAlign = "left";
-  code.style.padding = "30px";
+  code.style.padding = "40px";
 
   const lines = [
     "> boot_sequence.init()",
@@ -63,7 +57,7 @@ function codePhase() {
       i++;
       setTimeout(typeLine, 600);
     } else {
-      secondAlert();
+      alertPhase();
     }
   }
 
@@ -71,8 +65,8 @@ function codePhase() {
   typeLine();
 }
 
-// 🔴 SECOND ALERT
-function secondAlert() {
+// 🔴 ALERT + ❤️ HEARTBEAT (FIXED)
+function alertPhase() {
 
   monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
@@ -82,27 +76,29 @@ function secondAlert() {
 
   code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
 
-  beep();
+  const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+  beep.play();
 
-  setTimeout(heartbeatPhase, 2500);
-}
-
-// ❤️ HEARTBEAT
-function heartbeatPhase() {
-
-  monitor.style.background = "black";
-  code.innerText = "";
-
-  const h = heartbeat();
+  const heart = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
 
   setTimeout(() => {
-    h.pause();
-    hackedMessage();
-  }, 5000);
+
+    // ❤️ switch to black and start heartbeat immediately
+    monitor.style.background = "black";
+    code.innerText = "";
+
+    heart.play().catch(()=>{});
+
+    setTimeout(() => {
+      heart.pause();
+      hackedScreen();
+    }, 5000);
+
+  }, 2000);
 }
 
-// 😏 HACKED MESSAGE
-function hackedMessage() {
+// 😏 HACKED SCREEN
+function hackedScreen() {
 
   code.style.color = "white";
   code.style.textAlign = "center";
@@ -124,7 +120,7 @@ function hackedMessage() {
   setTimeout(finalLove, 3500);
 }
 
-// 💘 FINAL LOVE
+// 💘 FINAL
 function finalLove() {
 
   document.body.innerHTML = `
@@ -136,16 +132,14 @@ function finalLove() {
       background: radial-gradient(circle, #ffb6c1, #000);
       text-align:center;
     ">
-      <div style="
-        font-size:90px;
-        color:white;
-      ">
+      <div style="font-size:90px; color:white;">
         𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
     </div>
   `;
 }
 
+// ❌ DECLINE
 declineBtn.onclick = () => {
   bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
 };
