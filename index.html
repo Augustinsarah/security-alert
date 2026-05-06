@@ -1,27 +1,52 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Security Alert</title>
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial;
+    }
+
+    #bootScreen, #monitor {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #monitor {
+      display: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #confirm { background: red; color: white; }
+    #decline { background: gray; color: white; }
+  </style>
 </head>
 
 <body>
 
 <div id="bootScreen">
   <h1>SECURITY ACCESS REQUEST</h1>
-  <p>Unknown system detected...</p>
-
   <button id="decline">Decline</button>
   <button id="confirm">Confirm</button>
 </div>
 
 <div id="monitor">
-  <div id="code"></div>
+  <div id="code">Waiting...</div>
 </div>
-
-<!-- 🔊 AUDIO (VERY IMPORTANT) -->
-<audio id="monitorSound" src="https://actions.google.com/sounds/v1/alarms/medical_monitor_beep.ogg"></audio>
-<audio id="heartSound" src="https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg"></audio>
 
 <script src="script.js"></script>
 
