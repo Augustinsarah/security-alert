@@ -5,165 +5,154 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// 🔓 unlock audio (fix Chrome block)
-function unlockAudio() {
-  const a = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-  a.volume = 0;
-  a.play().catch(() => {});
+// 🔊 alert sound (tun-tun)
+function alertBeep() {
+  const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+  beep.play();
 }
 
-// ⚡ SCREEN FLASH + SHAKE
-function flashShake() {
-  document.body.style.transition = "0.1s";
-  document.body.style.background = "white";
+// ❤️ heartbeat
+function heartbeatSound() {
+  const hb = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
+  hb.play();
+  return hb;
+}
 
-  setTimeout(() => {
-    document.body.style.background = "black";
-  }, 150);
-
-  document.body.style.transform = "translateX(10px)";
-  setTimeout(() => document.body.style.transform = "translateX(-10px)", 100);
-  setTimeout(() => document.body.style.transform = "translateX(0px)", 200);
+// unlock audio
+function unlock() {
+  const a = new Audio();
+  a.play().catch(()=>{});
 }
 
 confirmBtn.onclick = () => {
+  unlock();
 
-  unlockAudio();
-
+  // 🔴 red alert screen
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
+  monitor.style.background = "#2b0000";
 
-  startSequence();
+  code.style.color = "#ff4d4d";
+  code.style.fontSize = "60px";
+  code.style.textAlign = "center";
+
+  code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
+
+  alertBeep();
+
+  setTimeout(runCodePhase, 2500);
 };
 
-function startSequence() {
+// 💻 REAL CODE STYLE TEXT
+function runCodePhase() {
 
-  const messages = [
-    "SYSTEM SCAN INITIATED...",
-    "FIREWALL BYPASSED...",
-    "DEVICE TRACE ACTIVE...",
-    "LOCATION UNKNOWN...",
-    "BREACH IMMINENT..."
+  monitor.style.background = "black";
+  code.style.color = "#00ff66";
+  code.style.fontSize = "28px";
+  code.style.textAlign = "left";
+  code.style.padding = "40px";
+
+  const lines = [
+    "> init.sys --run",
+    "> loading kernel modules...",
+    "> checking files...",
+    "> scanning memory blocks...",
+    "> verifying access layers...",
+    "> system integrity: FAIL"
   ];
 
   let i = 0;
 
-  function runScan() {
-    code.innerText = messages[i];
-    flashShake();
+  function typeLine() {
+    code.innerText += lines[i] + "\n";
     i++;
 
-    if (i < messages.length) {
-      setTimeout(runScan, 1200);
+    if (i < lines.length) {
+      setTimeout(typeLine, 600);
     } else {
-      breachAlert();
+      triggerAlert();
     }
   }
 
-  function breachAlert() {
+  code.innerText = "";
+  typeLine();
+}
 
-    monitor.style.background = "#200000";
-    code.innerHTML = "🚨 SECURITY BREACH DETECTED 🚨";
+// 🔴 second alert
+function triggerAlert() {
 
-    const alarm = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
-    alarm.play();
+  monitor.style.background = "#2b0000";
+  code.style.color = "#ff4d4d";
+  code.style.textAlign = "center";
+  code.style.fontSize = "55px";
+  code.style.padding = "0";
 
-    setTimeout(() => {
-      heartbeatPhase();
-    }, 3000);
-  }
+  code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
 
-  function heartbeatPhase() {
+  alertBeep();
 
-    monitor.style.background = "black";
-    code.innerText = "";
+  setTimeout(heartbeatPhase, 2500);
+}
 
-    const hb = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
-    hb.play();
+// ❤️ heartbeat phase
+function heartbeatPhase() {
 
-    setTimeout(() => {
-      hb.pause();
-      smokePhase();
-    }, 5000);
-  }
+  monitor.style.background = "black";
+  code.innerText = "";
 
-  function smokePhase() {
+  const hb = heartbeatSound();
 
-    const smoke = new Audio("https://actions.google.com/sounds/v1/nature/wind_and_rain.ogg");
-    smoke.play();
+  setTimeout(() => {
+    hb.pause();
+    hackedScreen();
+  }, 5000);
+}
 
-    setTimeout(() => {
-      finalScene();
-    }, 3000);
-  }
+// 😏 hacked message (math bold style)
+function hackedScreen() {
 
-  function finalScene() {
+  code.style.color = "white";
+  code.style.textAlign = "center";
+  code.style.fontSize = "70px";
 
-    monitor.innerHTML = `
+  code.innerHTML = `
+    <div style="font-family: 'Courier New', monospace;">
+      <b>𝑺𝑨𝑹𝑨𝑯 𝑯𝑨𝑪𝑲𝑬𝑫 𝒀𝑶𝑼 😏</b>
+      <br><br>
+      <span style="font-size:40px;">
+        22 OCT 2024<br><br>
+        No escape available 💘
+      </span>
+    </div>
+  `;
+
+  setTimeout(loveScreen, 3500);
+}
+
+// 💘 final love screen (cute background)
+function loveScreen() {
+
+  document.body.innerHTML = `
+    <div style="
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      background: radial-gradient(circle, #ffb6c1, #000);
+      text-align:center;
+    ">
       <div style="
-        color: black;
-        font-size: 55px;
-        text-align: center;
-        background: rgba(255,255,255,0.95);
-        padding: 40px;
-        border-radius: 20px;
-        animation: fadeIn 2s ease;
+        font-size:90px;
+        color:white;
+        font-family: 'Courier New', monospace;
       ">
-        💖 SYSTEM RESTORED 💖<br><br>
-        ALL THREATS NEUTRALIZED
+        𝑰 𝑳𝑶𝑽𝑬 𝒀𝑶𝑼 𝑨𝑼𝑮𝑮𝒀 💖
       </div>
-    `;
-
-    setTimeout(loveScreen, 3000);
-  }
-
-  function loveScreen() {
-
-    document.body.innerHTML = `
-      <div id="love">
-        I LOVE YOU AUGGY 👩🏻‍❤️‍💋‍👨🏾
-      </div>
-    `;
-
-    // 💖 floating hearts
-    setInterval(() => {
-      const heart = document.createElement("div");
-      heart.innerHTML = "💖";
-      heart.style.position = "absolute";
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.top = "100vh";
-      heart.style.fontSize = "30px";
-      heart.style.animation = "floatUp 4s linear";
-      document.body.appendChild(heart);
-
-      setTimeout(() => heart.remove(), 4000);
-    }, 300);
-  }
-
-  runScan();
+    </div>
+  `;
 }
 
 declineBtn.onclick = () => {
   bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
 };
-
-// 💖 animations injected
-const style = document.createElement("style");
-style.innerHTML = `
-@keyframes floatUp {
-  from { transform: translateY(0); opacity: 1; }
-  to { transform: translateY(-100vh); opacity: 0; }
-}
-
-#love {
-  height: 100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:black;
-  color:#ffb6c1;
-  font-size:80px;
-  text-align:center;
-}
-`;
-document.head.appendChild(style);
