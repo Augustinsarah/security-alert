@@ -5,10 +5,21 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
+// 🔊 continuous monitor sound (tum…tum…tum…)
+const monitorSound = new Audio("https://actions.google.com/sounds/v1/alarms/medical_monitor_beep.ogg");
+monitorSound.loop = true;
+
+// ❤️ heartbeat (strong one)
+const heartSound = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
+
 // unlock audio
 function unlock() {
-  const a = new Audio();
-  a.play().catch(()=>{});
+  monitorSound.volume = 0;
+  monitorSound.play().then(() => {
+    monitorSound.pause();
+    monitorSound.currentTime = 0;
+    monitorSound.volume = 1;
+  }).catch(()=>{});
 }
 
 confirmBtn.onclick = () => {
@@ -18,15 +29,16 @@ confirmBtn.onclick = () => {
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
 
-  // 🔴 FIRST ALERT
+  // ▶ START CONTINUOUS SOUND
+  monitorSound.play();
+
+  // 🔴 first alert
   monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.fontSize = "60px";
   code.style.textAlign = "center";
 
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
-
-  new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play();
 
   setTimeout(codePhase, 2500);
 };
@@ -65,39 +77,37 @@ function codePhase() {
   typeLine();
 }
 
-// 🔴 ALERT + ❤️ HEARTBEAT (FIXED)
+// 🔴 ALERT → ❤️ HEARTBEAT
 function alertPhase() {
 
   monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.textAlign = "center";
   code.style.fontSize = "55px";
-  code.style.padding = "0";
 
   code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
 
-  const beep = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-  beep.play();
-
-  const heart = new Audio("https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg");
-
   setTimeout(() => {
 
-    // ❤️ switch to black and start heartbeat immediately
+    // stop monitor beep
+    monitorSound.pause();
+
+    // black screen
     monitor.style.background = "black";
     code.innerText = "";
 
-    heart.play().catch(()=>{});
+    // ❤️ start heartbeat clearly
+    heartSound.play();
 
     setTimeout(() => {
-      heart.pause();
+      heartSound.pause();
       hackedScreen();
     }, 5000);
 
   }, 2000);
 }
 
-// 😏 HACKED SCREEN
+// 😏 hacked
 function hackedScreen() {
 
   code.style.color = "white";
@@ -105,22 +115,20 @@ function hackedScreen() {
   code.style.fontSize = "70px";
 
   code.innerHTML = `
-    <div style="line-height:1.5;">
-      <div style="font-size:75px;">
-        𝕊𝔸ℝ𝔸ℍ ℍ𝔸ℂ𝕂𝔼𝔻 𝕐𝕆𝕌 😏
-      </div>
-      <br>
-      <div style="font-size:35px;">
+    <div>
+      𝕊𝔸ℝ𝔸ℍ ℍ𝔸ℂ𝕂𝔼𝔻 𝕐𝕆𝕌 😏
+      <br><br>
+      <span style="font-size:35px;">
         22 OCT 2024<br><br>
         No escape available 💘
-      </div>
+      </span>
     </div>
   `;
 
   setTimeout(finalLove, 3500);
 }
 
-// 💘 FINAL
+// 💘 final
 function finalLove() {
 
   document.body.innerHTML = `
@@ -130,16 +138,15 @@ function finalLove() {
       justify-content:center;
       align-items:center;
       background: radial-gradient(circle, #ffb6c1, #000);
-      text-align:center;
     ">
-      <div style="font-size:90px; color:white;">
+      <div style="font-size:90px; color:white; text-align:center;">
         𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
     </div>
   `;
 }
 
-// ❌ DECLINE
+// decline
 declineBtn.onclick = () => {
   bootScreen.innerHTML = "<h1>ACCESS DENIED</h1>";
 };
