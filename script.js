@@ -4,78 +4,58 @@ function finalLove() {
     <div id="loveScreen" style="
       height:100vh;
       display:flex;
-      flex-direction:column;
       justify-content:center;
       align-items:center;
       background: radial-gradient(circle, #ffb6c1, #000);
       overflow:hidden;
       position:relative;
     ">
-
-      <div id="loveText" style="
-        font-size:90px;
+      <div style="
+        font-size:100px;
         color:white;
         text-align:center;
         z-index:2;
       ">
         𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
-
-      <button id="loveBtn" style="
-        margin-top:30px;
-        padding:12px 25px;
-        font-size:20px;
-        border:none;
-        border-radius:20px;
-        background:#ff69b4;
-        color:white;
-        cursor:pointer;
-        z-index:2;
-      ">
-        Tap me 💘
-      </button>
-
     </div>
   `;
 
-  // 💖 floating hearts automatically
-  setInterval(createHeart, 400);
+  // 💕 ALL YOUR EMOJIS
+  const emojis = [
+    "❤️","💕","😍","😘","🫂","🥰","🥹","🤗","🫣","🤭","🫠","🫶","🫀",
+    "🤴","👸","👩🏻‍❤️‍💋‍👨🏾","👩🏻‍❤️‍👨🏾","👑","💍","💎","💝","💞"
+  ];
 
-  document.getElementById("loveBtn").onclick = () => {
-    for (let i = 0; i < 20; i++) {
-      setTimeout(createHeart, i * 100);
-    }
-  };
-
-  // 👆 clicking anywhere = hearts burst
-  document.body.onclick = (e) => {
-    for (let i = 0; i < 15; i++) {
-      setTimeout(() => createHeart(e.clientX, e.clientY), i * 80);
-    }
-  };
+  // 💫 continuous floating
+  setInterval(() => {
+    createEmoji(emojis[Math.floor(Math.random() * emojis.length)]);
+  }, 300);
 }
 
-// 💖 heart generator
-function createHeart(x = Math.random() * window.innerWidth, y = window.innerHeight) {
+// 💫 emoji floating function
+function createEmoji(emoji) {
 
-  const heart = document.createElement("div");
+  const el = document.createElement("div");
 
-  heart.innerText = "💖";
-  heart.style.position = "absolute";
-  heart.style.left = x + "px";
-  heart.style.top = y + "px";
-  heart.style.fontSize = (20 + Math.random() * 30) + "px";
-  heart.style.opacity = 1;
-  heart.style.transition = "all 2s linear";
+  el.innerText = emoji;
 
-  document.body.appendChild(heart);
+  el.style.position = "absolute";
+  el.style.left = Math.random() * window.innerWidth + "px";
+  el.style.top = window.innerHeight + "px";
+
+  el.style.fontSize = (25 + Math.random() * 35) + "px";
+  el.style.opacity = 1;
+  el.style.transition = "all 4s linear";
+
+  document.body.appendChild(el);
 
   setTimeout(() => {
-    heart.style.top = (y - 200) + "px";
-    heart.style.opacity = 0;
+    el.style.top = "-50px";
+    el.style.opacity = 0;
   }, 50);
 
   setTimeout(() => {
-    heart.remove();
-  }, 2000);
+    el.remove();
+  }, 4000);
 }
