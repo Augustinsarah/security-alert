@@ -13,6 +13,7 @@ const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let sirenOsc = null;
 let sirenGain = null;
 let blinkInterval = null;
+let sweepInterval = null;
 
 function startDangerMode() {
   stopAllSounds();
@@ -36,7 +37,7 @@ function startDangerMode() {
   }
 
   sweep();
-  setInterval(sweep, 1600);
+  sweepInterval = setInterval(sweep, 1600);
 
   let on = false;
   blinkInterval = setInterval(() => {
@@ -75,8 +76,8 @@ function playHeartbeat(duration = 9000) {
   let interval = setInterval(() => {
     let now = audioCtx.currentTime;
 
-    heartbeatBeat(now, 60, 1.0);       // lub
-    heartbeatBeat(now + 0.28, 48, 0.7); // dub
+    heartbeatBeat(now, 60, 1.0);
+    heartbeatBeat(now + 0.28, 48, 0.7);
 
   }, 1100);
 
@@ -108,6 +109,7 @@ function stopAllSounds() {
   }
   if (blinkInterval) clearInterval(blinkInterval);
   if (monitorInterval) clearInterval(monitorInterval);
+  if (sweepInterval) clearInterval(sweepInterval);
 }
 
 // ====== START ======
@@ -125,7 +127,6 @@ confirmBtn.onclick = () => {
 
   startDangerMode();
 
-  // ⏳ LONGER WAIT
   setTimeout(codePhase, 4000);
 };
 
@@ -155,7 +156,7 @@ function codePhase() {
     if (i < lines.length) {
       code.innerText += lines[i] + "\n";
       i++;
-      setTimeout(typeLine, 1000); // ⏳ slower typing
+      setTimeout(typeLine, 1000);
     } else {
       alertPhase();
     }
@@ -181,14 +182,13 @@ function alertPhase() {
     monitor.style.background = "black";
     code.innerText = "";
 
-    // ❤️ REAL HEARTBEAT
     playHeartbeat(9000);
 
     setTimeout(() => {
       hackedScreen();
     }, 9000);
 
-  }, 4000); // ⏳ longer alert
+  }, 4000);
 }
 
 // ====== HACKED ======
@@ -211,26 +211,60 @@ function hackedScreen() {
     </div>
   `;
 
-  setTimeout(finalLove, 6000); // ⏳ longer hold
+  setTimeout(finalLove, 6000);
 }
 
-// ====== LOVE ======
+// ====== LOVE (FINAL WITH EMOJIS) ======
 function finalLove() {
 
   document.body.innerHTML = `
-    <div style="
+    <div id="loveScreen" style="
       height:100vh;
       display:flex;
       justify-content:center;
       align-items:center;
       background: radial-gradient(circle, #ffb6c1, #000);
+      overflow:hidden;
+      position:relative;
       text-align:center;
     ">
-      <div style="font-size:100px; color:white;">
+      <div style="font-size:100px; color:white; z-index:2;">
         𝕀 𝕃𝕆𝕍𝔼 𝕐𝕆𝕌 𝔸𝕌𝔾𝔾𝕐 💖
       </div>
     </div>
   `;
+
+  const emojis = [
+    "❤️","💕","😍","😘","🫂","🥰","🥹","🤗","🫣","🤭","🫠","🫶",
+    "🫀","🤴👸","👩🏻‍❤️‍💋‍👨🏾","👩🏻‍❤️‍👨🏾","👑","💍","💎","💝","💞"
+  ];
+
+  setInterval(() => {
+
+    const emoji = document.createElement("div");
+
+    emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+    emoji.style.position = "absolute";
+    emoji.style.left = Math.random() * window.innerWidth + "px";
+    emoji.style.top = window.innerHeight + "px";
+
+    emoji.style.fontSize = (20 + Math.random() * 40) + "px";
+    emoji.style.opacity = 1;
+    emoji.style.transition = "all 4s linear";
+
+    document.body.appendChild(emoji);
+
+    setTimeout(() => {
+      emoji.style.top = "-50px";
+      emoji.style.opacity = 0;
+    }, 50);
+
+    setTimeout(() => {
+      emoji.remove();
+    }, 4000);
+
+  }, 300);
 }
 
 // ====== DECLINE ======
