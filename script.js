@@ -9,42 +9,41 @@ const code = document.getElementById("code");
 // ====== AUDIO ENGINE ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// ====== 🔴 DANGER MODE (SIREN + BLINK) ======
-let sirenOsc = null;
-let sirenGain = null;
+// ====== 🔴 DANGER MODE (TRUN ALARM + BLINK) ======
 let blinkInterval = null;
-let sweepInterval = null;
+let alarmInterval = null;
 
 function startDangerMode() {
   stopAllSounds();
 
-  sirenOsc = audioCtx.createOscillator();
-  sirenGain = audioCtx.createGain();
-
-  sirenOsc.type = "sawtooth";
-  sirenGain.gain.value = 0.35;
-
-  sirenOsc.connect(sirenGain);
-  sirenGain.connect(audioCtx.destination);
-
-  sirenOsc.start();
-
-  function sweep() {
-    const now = audioCtx.currentTime;
-    sirenOsc.frequency.setValueAtTime(500, now);
-    sirenOsc.frequency.linearRampToValueAtTime(1200, now + 0.8);
-    sirenOsc.frequency.linearRampToValueAtTime(500, now + 1.6);
-  }
-
-  sweep();
-  sweepInterval = setInterval(sweep, 1600);
-
+  // 🔴 BLINK EFFECT
   let on = false;
   blinkInterval = setInterval(() => {
     monitor.style.background = on ? "#300000" : "#000000";
     monitor.style.boxShadow = on ? "0 0 80px red" : "0 0 0px black";
     on = !on;
   }, 500);
+
+  // 🚨 TRUN TRUN TRUN SOUND
+  function trun() {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "square";
+    osc.frequency.value = 180;
+
+    gain.gain.value = 0.4;
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+  }
+
+  alarmInterval = setInterval(() => {
+    trun();
+  }, 250);
 }
 
 // ====== 💻 MONITOR SOUND ======
@@ -103,13 +102,9 @@ function heartbeatBeat(time, freq, volume) {
 
 // ====== STOP ALL ======
 function stopAllSounds() {
-  if (sirenOsc) {
-    sirenOsc.stop();
-    sirenOsc = null;
-  }
   if (blinkInterval) clearInterval(blinkInterval);
   if (monitorInterval) clearInterval(monitorInterval);
-  if (sweepInterval) clearInterval(sweepInterval);
+  if (alarmInterval) clearInterval(alarmInterval);
 }
 
 // ====== START ======
