@@ -9,18 +9,21 @@ const code = document.getElementById("code");
 // ====== AUDIO ENGINE ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// 🔴 DANGER ALARM (red screen)
-let dangerInterval = null;
+// 🔴 BLINK + SIREN
+let sirenInterval = null;
+let blinkInterval = null;
 
-function startDangerSound() {
+function startDangerMode() {
   stopAllSounds();
-  dangerInterval = setInterval(() => {
+
+  // 🚨 SIREN SOUND (wee-woo)
+  sirenInterval = setInterval(() => {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(700, audioCtx.currentTime);
-    osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.2);
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+    osc.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
 
     gain.gain.value = 0.3;
 
@@ -28,15 +31,23 @@ function startDangerSound() {
     gain.connect(audioCtx.destination);
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.25);
+    osc.stop(audioCtx.currentTime + 0.3);
+  }, 300);
+
+  // 🔴 BLINKING RED BACKGROUND
+  let on = false;
+  blinkInterval = setInterval(() => {
+    monitor.style.background = on ? "#300000" : "#000000";
+    on = !on;
   }, 300);
 }
 
-// 💻 monitor "tum tum"
+// 💻 monitor "tum-tum"
 let monitorInterval = null;
 
 function startMonitorSound() {
   stopAllSounds();
+
   monitorInterval = setInterval(() => {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
@@ -51,6 +62,8 @@ function startMonitorSound() {
     osc.start();
     osc.stop(audioCtx.currentTime + 0.1);
   }, 800);
+
+  monitor.style.background = "black";
 }
 
 // ❤️ heartbeat
@@ -81,10 +94,11 @@ function beat(time, freq, vol) {
   osc.stop(time + 0.2);
 }
 
-// 🛑 stop all sounds
+// 🛑 STOP ALL
 function stopAllSounds() {
-  if (dangerInterval) clearInterval(dangerInterval);
+  if (sirenInterval) clearInterval(sirenInterval);
   if (monitorInterval) clearInterval(monitorInterval);
+  if (blinkInterval) clearInterval(blinkInterval);
 }
 
 // ====== START ======
@@ -95,14 +109,12 @@ confirmBtn.onclick = () => {
   bootScreen.style.display = "none";
   monitor.style.display = "flex";
 
-  // 🔴 RED SCREEN + DANGER SOUND
-  monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.fontSize = "60px";
   code.style.textAlign = "center";
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
 
-  startDangerSound();
+  startDangerMode();
 
   setTimeout(codePhase, 2500);
 };
@@ -110,7 +122,6 @@ confirmBtn.onclick = () => {
 // ====== CODE ======
 function codePhase() {
 
-  monitor.style.background = "black";
   code.style.color = "#00ff66";
   code.style.fontSize = "26px";
   code.style.textAlign = "left";
@@ -146,13 +157,12 @@ function codePhase() {
 // ====== ALERT ======
 function alertPhase() {
 
-  monitor.style.background = "#300000";
   code.style.color = "#ff4d4d";
   code.style.textAlign = "center";
   code.style.fontSize = "55px";
   code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
 
-  startDangerSound();
+  startDangerMode();
 
   setTimeout(() => {
 
@@ -161,7 +171,6 @@ function alertPhase() {
     monitor.style.background = "black";
     code.innerText = "";
 
-    // ❤️ heartbeat
     playHeartbeat(5000);
 
     setTimeout(() => {
