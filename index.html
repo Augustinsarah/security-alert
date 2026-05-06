@@ -1,12 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Security Alert</title>
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: black;
+      color: white;
+    }
+
+    #bootScreen {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+
+    #confirm {
+      background: red;
+      color: white;
+    }
+
+    #decline {
+      background: gray;
+      color: white;
+    }
+
+    #monitor {
+      display: none;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    #code {
+      white-space: pre-line;
+    }
+  </style>
 </head>
 
 <body>
 
+<!-- START SCREEN -->
 <div id="bootScreen">
   <h1>SECURITY ACCESS REQUEST</h1>
   <p>Unknown system detected...</p>
@@ -15,13 +65,10 @@
   <button id="confirm">Confirm</button>
 </div>
 
+<!-- MONITOR SCREEN -->
 <div id="monitor">
-  <div id="code"></div>
+  <div id="code">AWAITING CONFIRMATION...</div>
 </div>
-
-<!-- 🔊 AUDIO (VERY IMPORTANT) -->
-<audio id="monitorSound" src="https://actions.google.com/sounds/v1/alarms/medical_monitor_beep.ogg"></audio>
-<audio id="heartSound" src="https://actions.google.com/sounds/v1/alarms/heartbeat_fast.ogg"></audio>
 
 <script src="script.js"></script>
 
