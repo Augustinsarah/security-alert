@@ -1,0 +1,41 @@
+body {
+  margin: 0;
+  background: black;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+/* BOOT SCREEN */
+#bootScreen {
+  height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+button {
+  margin: 10px;
+  padding: 12px 25px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* MONITOR SCREEN */
+#monitor {
+  display: none;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  background: black;
+}
+
+/* SECURITY CODE TEXT */
+#code {
+  color: #00a844;
+  font-size: 60px;
+  text-align: center;
+  white-space: pre-line;
+}
