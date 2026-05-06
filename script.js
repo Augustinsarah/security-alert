@@ -5,7 +5,7 @@ const code = document.getElementById("code");
 
 // ====== AUDIO ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let alarmOsc;
+let alarmInterval;
 let blink;
 
 // ====== INIT ======
@@ -39,7 +39,7 @@ function startSystem() {
   setTimeout(scanPhase, 3000);
 }
 
-// ====== 🚨 REAL SECURITY BREACH ALARM (CORRECT SOUND) ======
+// ====== 🚨 REAL SECURITY WARNING ALARM (CORRECT TYPE) ======
 function startAlarm() {
 
   stopAll();
@@ -52,29 +52,30 @@ function startAlarm() {
     on = !on;
   }, 200);
 
-  // 🚨 SINGLE HARSH ALARM TONE (NOT AMBULANCE STYLE)
-  alarmOsc = audioCtx.createOscillator();
+  // 🚨 TRUE SECURITY ALARM (BEEP BEEP BEEP STYLE)
+  alarmInterval = setInterval(() => {
+    beep(1000, 0.2);
+    setTimeout(() => beep(1000, 0.2), 200);
+  }, 500);
+}
+
+// ====== BEEP SOUND ======
+function beep(freq, duration) {
+
+  const osc = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
 
-  alarmOsc.type = "square"; // harsh = security alarm feel
-  alarmOsc.frequency.value = 1000; // fixed piercing warning tone
+  osc.type = "square"; // harsh digital alarm sound
+  osc.frequency.value = freq;
 
-  gain.gain.value = 0.25;
+  gain.gain.value = 0.3;
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
-  alarmOsc.connect(gain);
+  osc.connect(gain);
   gain.connect(audioCtx.destination);
 
-  alarmOsc.start();
-
-  // ⚠️ FAST PULSE (URGENT SYSTEM ALARM FEEL)
-  setInterval(() => {
-    const t = audioCtx.currentTime;
-
-    alarmOsc.frequency.setValueAtTime(1000, t);
-    alarmOsc.frequency.linearRampToValueAtTime(1300, t + 0.15);
-    alarmOsc.frequency.linearRampToValueAtTime(900, t + 0.3);
-
-  }, 300);
+  osc.start();
+  osc.stop(audioCtx.currentTime + duration);
 }
 
 // ====== SCAN ======
@@ -155,6 +156,6 @@ function finalLove() {
 
 // ====== STOP ======
 function stopAll() {
-  if (alarmOsc) alarmOsc.stop();
+  if (alarmInterval) clearInterval(alarmInterval);
   if (blink) clearInterval(blink);
 }
