@@ -3,10 +3,10 @@ const bootScreen = document.getElementById("bootScreen");
 const monitor = document.getElementById("monitor");
 const code = document.getElementById("code");
 
-// ====== AUDIO SETUP ======
+// ====== AUDIO ======
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let alarmOsc;
-let alarmGain;
+let osc;
+let gain;
 let blink;
 
 // ====== INIT ======
@@ -22,7 +22,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ====== START SYSTEM ======
+// ====== START ======
 function startSystem() {
 
   audioCtx.resume();
@@ -32,49 +32,55 @@ function startSystem() {
 
   code.innerText = "⚠️ SECURITY ACCESS REQUEST ⚠️";
   code.style.color = "#ff0000";
-  code.style.fontSize = "48px";
+  code.style.fontSize = "50px";
   code.style.textAlign = "center";
 
-  startAlarmMode();
+  startAlarm();
 
   setTimeout(scanPhase, 3000);
 }
 
-// ====== BANK-STYLE ALARM (REALISTIC SIREN) ======
-function startAlarmMode() {
+// ====== 🔴 LONG CONTINUOUS BANK ALARM ======
+function startAlarm() {
 
   stopAll();
 
-  // 🔴 FLASH RED SCREEN
+  // FLASH RED SCREEN
   let on = false;
   blink = setInterval(() => {
-    monitor.style.background = on ? "#3a0000" : "#000000";
-    monitor.style.boxShadow = on ? "0 0 100px red" : "none";
+    monitor.style.background = on ? "#400000" : "#000000";
+    monitor.style.boxShadow = on ? "0 0 120px red" : "none";
     on = !on;
   }, 300);
 
-  // 🚨 ALARM SOUND (BANK STYLE)
-  alarmOsc = audioCtx.createOscillator();
-  alarmGain = audioCtx.createGain();
+  // CONTINUOUS SIREN (SMOOTH WAIL)
+  osc = audioCtx.createOscillator();
+  gain = audioCtx.createGain();
 
-  alarmOsc.type = "square";
-  alarmOsc.frequency.value = 900;
+  osc.type = "sine"; // smoother than square/saw for long alarm feel
+  gain.gain.value = 0.25;
 
-  alarmGain.gain.value = 0.25;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
 
-  alarmOsc.connect(alarmGain);
-  alarmGain.connect(audioCtx.destination);
+  osc.start();
 
-  alarmOsc.start();
-
-  let high = true;
+  // LONG SLOW SWEEP (REAL ALARM FEEL)
+  let direction = 1;
+  let freq = 500;
 
   setInterval(() => {
+
     const t = audioCtx.currentTime;
 
-    alarmOsc.frequency.setValueAtTime(high ? 1400 : 600, t);
-    high = !high;
-  }, 400);
+    freq += direction * 20;
+
+    if (freq > 1200) direction = -1;
+    if (freq < 500) direction = 1;
+
+    osc.frequency.setValueAtTime(freq, t);
+
+  }, 50);
 }
 
 // ====== SCAN PHASE ======
@@ -85,7 +91,7 @@ function scanPhase() {
   const lines = [
     "> boot_sequence.init()",
     "> loading security kernel...",
-    "> scanning system files...",
+    "> scanning memory...",
     "> verifying access logs...",
     "> firewall breach detected..."
   ];
@@ -106,7 +112,7 @@ function scanPhase() {
   type();
 }
 
-// ====== ALERT PHASE ======
+// ====== ALERT ======
 function alertPhase() {
 
   code.innerText = "⚠️ UNEXPECTED TRIGGER DETECTED ⚠️";
@@ -124,7 +130,7 @@ function alertPhase() {
   }, 2500);
 }
 
-// ====== HEARTBEAT (CLEAN + REALISTIC) ======
+// ====== HEARTBEAT ======
 function playHeartbeat(duration) {
 
   let count = 0;
@@ -143,20 +149,20 @@ function playHeartbeat(duration) {
 }
 
 function beat(freq, vol) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
 
-  osc.type = "triangle";
-  osc.frequency.value = freq;
+  o.type = "triangle";
+  o.frequency.value = freq;
 
-  gain.gain.value = vol;
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+  g.gain.value = vol;
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
 
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
+  o.connect(g);
+  g.connect(audioCtx.destination);
 
-  osc.start();
-  osc.stop(audioCtx.currentTime + 0.35);
+  o.start();
+  o.stop(audioCtx.currentTime + 0.35);
 }
 
 // ====== HACKED SCREEN ======
@@ -173,7 +179,7 @@ function hackedScreen() {
   setTimeout(finalLove, 5000);
 }
 
-// ====== FINAL LOVE SCREEN ======
+// ====== FINAL LOVE ======
 function finalLove() {
 
   document.body.innerHTML = `
@@ -192,10 +198,7 @@ function finalLove() {
     </div>
   `;
 
-  const emojis = [
-    "❤️","💕","😍","😘","🫶","🥰","🥹","🤗",
-    "💞","💝","👑","💍","💎","🫂"
-  ];
+  const emojis = ["❤️","💕","😍","😘","🫶","🥰","💞","💝","👑","💍","💎","🫂"];
 
   setInterval(() => {
 
@@ -221,8 +224,8 @@ function finalLove() {
   }, 200);
 }
 
-// ====== STOP ALL ======
+// ====== STOP ======
 function stopAll() {
-  if (alarmOsc) alarmOsc.stop();
+  if (osc) osc.stop();
   if (blink) clearInterval(blink);
 }
