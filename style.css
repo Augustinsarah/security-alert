@@ -5,7 +5,6 @@ body {
   overflow: hidden;
 }
 
-/* BOOT SCREEN */
 #bootScreen {
   height: 100vh;
   color: white;
@@ -13,7 +12,6 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
 }
 
 button {
@@ -23,19 +21,13 @@ button {
   cursor: pointer;
 }
 
-/* MONITOR SCREEN */
 #monitor {
   display: none;
   height: 100vh;
   justify-content: center;
   align-items: center;
-  background: black;
 }
 
-/* SECURITY CODE TEXT */
 #code {
-  color: #00a844;
-  font-size: 60px;
-  text-align: center;
-  white-space: pre-line;
+  width: 100%;
 }
